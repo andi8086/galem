@@ -42,12 +42,42 @@ typedef struct _GAL {
 
 GAL gal;
 
+bool product(int fuse)
+{
+	int row = fuse - gal.input_fuse_low;
+	if (gal.PTD[gal.PTD_low + row]) return false;
+
+	bool res =  true;
+
+	input_node *input = gal.input_list[row];
+	if (!input) return false;
+	do {
+		if (!*(input->pin_ref)) res = false;
+	} while(input = input->next);
+	return res;
+}
+
 OLMC *olmc_init(int input_row_first, int input_row_last)
 {
 	OLMC *olmc = calloc(1, sizeof(OLMC));
 	olmc->input_row_first = input_row_first;
 	olmc->input_row_last = input_row_last;
 	return olmc;
+}
+
+bool olmc_calc_or(int idx)
+{
+	// TODO: check if first row goes into OR (depending on config)
+
+	// get indices of first fuse for each row
+	min_row = gal.olmc[idx].input_row_first;
+	max_row = gal.olmc[idx].input_row_last;
+
+	// or is true if one input is true
+	for (int first_fuse = min_row; first_fuse < max_row;
+	     first_fuse += term_width) {
+		if (product(first_fuse)) return true;
+	}
 }
 
 void append_input(input_node **input_list, bool *pinref)
@@ -72,20 +102,6 @@ void free_input_list(input_node *node)
 	}
 }
 
-bool product(int fuse)
-{
-	int row = fuse - gal.input_fuse_low;
-	if (gal.PTD[gal.PTD_low + row]) return false;
-
-	bool res =  true;
-
-	input_node *input = gal.input_list[row];
-	if (!input) return false;
-	do {
-		if (!*(input->pin_ref)) res = false;
-	} while(input = input->next);
-	return res;
-}
 
 void gal16v8_init(void)
 {

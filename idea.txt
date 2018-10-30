@@ -1,0 +1,19 @@
+Input pins are connected to the columns of the fabric.
+One column is for the non-inverted and one for the inverted input signal.
+The column can be connected to every row of the AND fabric.
+
+The jedec file lists rows of the fabric which represent an input line
+to the OLMC OR gate or have special other functions.
+
+Since the bitmap acts on the rows and defines connections to
+source columns, the column is the source of the signals to compute.
+Each column can only have one input. Columns are organised in quadruples.
+One for input, one for inverted input, one for feedback from OLMC output
+and one for inverted feedback from OLMC output.
+
+When calculating an input to the OR Gate, the corresponding lines have
+to be sampled. This means an AND array must be calculated with all activated columns as input. On the GAL16V8, each AND has 32 inputs.
+
+Inputs to the chip should be held in a struct where pointers are taken and
+appended to the and gate. This way, the and gate references the inputs directly.
+
